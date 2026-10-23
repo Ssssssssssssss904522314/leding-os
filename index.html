@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>LedingOS 26</title>
+<style>
+:root{--page:#e9ecf3;box-sizing:border-box}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--page:#0d0f14}}
+:root[data-theme="dark"]{--page:#0d0f14}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0}
+body{background:var(--page);display:grid;place-items:center;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,sans-serif;overflow:hidden}
+#phone{--fg:#fff;--glass:rgba(255,255,255,.2);--edge:rgba(255,255,255,.4);--app:#f2f2f7;--appfg:#111;--card:#fff;--wp:linear-gradient(160deg,#3b6cff,#b04dff 55%,#ff7a9c);
+width:390px;height:844px;flex:none;border-radius:52px;position:relative;overflow:hidden;background:var(--wp);color:var(--fg);box-shadow:0 0 0 10px #15161a,0 30px 80px rgba(0,0,0,.45);transition:background .5s}
+#phone[data-theme="dark"]{--app:#000;--appfg:#fff;--card:#1c1c1e;--glass:rgba(30,30,40,.35);--edge:rgba(255,255,255,.18)}
+#phone::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 20% 10%,rgba(255,255,255,.25),transparent 45%);pointer-events:none}
+.glass{background:var(--glass);backdrop-filter:blur(26px) saturate(190%);-webkit-backdrop-filter:blur(26px) saturate(190%);border:1px solid var(--edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.45),0 10px 30px rgba(0,0,0,.18)}
+#sb{position:absolute;top:0;left:0;right:0;height:50px;padding:14px 30px 0;display:flex;justify-content:space-between;font-weight:600;font-size:15px;z-index:50;cursor:pointer}
+#sb.dk{color:var(--appfg)}
+.screen{position:absolute;inset:0;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .35s}
+#lock{z-index:30;text-align:center;padding-top:110px;cursor:pointer}
+#lock.off{transform:translateY(-100%);opacity:0;pointer-events:none}
+#lt{font-size:92px;font-weight:700;letter-spacing:-2px;line-height:1}
+#ld{font-size:19px;font-weight:500;opacity:.9;margin-bottom:6px;text-transform:capitalize}
+#note{position:absolute;left:14px;right:14px;top:330px;border-radius:26px;padding:14px 16px;text-align:left;transform:translateY(-30px);opacity:0;transition:.5s}
+#note.in{transform:none;opacity:1}
+#note b{display:block;font-size:14px}#note span{font-size:14px;opacity:.9}
+#hint{position:absolute;bottom:34px;left:0;right:0;font-size:14px;opacity:.85}
+#home{padding:70px 22px 0;z-index:10}
+.wid{border-radius:28px;padding:16px 18px;height:140px;margin-bottom:22px;display:flex;justify-content:space-between}
+.wid h2{margin:0;font-size:46px;font-weight:600;letter-spacing:-1px}.wid p{margin:2px 0;font-size:15px;opacity:.9}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px 0;justify-items:center}
+.ic{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:11.5px;cursor:pointer;width:72px;border:0;background:none;color:inherit;font-family:inherit}
+.ic i{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;font-size:32px;font-style:normal;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 6px 14px rgba(0,0,0,.25);transition:transform .15s}
+.ic:active i{transform:scale(.9)}
+#dock{position:absolute;left:14px;right:14px;bottom:34px;height:92px;border-radius:36px;display:flex;justify-content:space-around;align-items:center}
+#dock .ic span{display:none}
+#bar{position:absolute;bottom:8px;left:50%;width:140px;height:5px;margin-left:-70px;border-radius:3px;background:#fff;opacity:.85;z-index:60;cursor:pointer}
+#bar.dk{background:var(--appfg)}
+#cc{z-index:70;background:rgba(0,0,0,.35);backdrop-filter:blur(14px);padding:60px 18px;transform:translateY(-100%)}
+#cc.on{transform:none}
+.ccg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.tile{border-radius:28px;height:92px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:4px;font-size:13px;cursor:pointer;border:0;color:#fff;font-family:inherit}
+.tile b{font-size:26px;font-weight:400}.tile.on{background:#0a84ff;box-shadow:none}
+.sl{grid-column:span 2;border-radius:28px;padding:18px 22px;color:#fff;font-size:13px}.sl input{width:100%;margin-top:8px;accent-color:#fff}
+.app{position:absolute;inset:0;z-index:40;background:var(--app);color:var(--appfg);padding:56px 18px 30px;overflow:auto;transform:scale(.6);opacity:0;border-radius:44px;transition:.35s cubic-bezier(.2,.8,.2,1)}
+.app.show{transform:none;opacity:1;border-radius:0}
+.app h1{margin:6px 0 16px;font-size:32px}
+.row{background:var(--card);border-radius:14px;padding:14px 16px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;font-size:16px}
+.sw{width:50px;height:30px;border-radius:15px;background:#8e8e9355;position:relative;cursor:pointer;transition:.2s;flex:none}
+.sw::after{content:"";position:absolute;top:2px;left:2px;width:26px;height:26px;border-radius:50%;background:#fff;transition:.2s;box-shadow:0 2px 4px rgba(0,0,0,.3)}
+.sw.on{background:#34c759}.sw.on::after{left:22px}
+.wps{display:flex;gap:10px}.wps div{flex:1;height:90px;border-radius:14px;cursor:pointer;border:3px solid transparent}.wps .sel{border-color:#0a84ff}
+textarea{width:100%;height:480px;border:0;border-radius:14px;background:var(--card);color:var(--appfg);padding:14px;font:17px/1.4 inherit;resize:none;outline:none}
+.calc{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px}
+.calc button,.pad button{height:72px;border-radius:36px;border:0;font-size:28px;background:var(--card);color:var(--appfg);cursor:pointer;font-family:inherit}
+.calc .o{background:#ff9f0a;color:#fff}.calc .f{background:#a5a5a5;color:#000}.calc .z{grid-column:span 2}
+.disp{height:150px;display:flex;align-items:flex-end;justify-content:flex-end;font-size:70px;font-weight:300;overflow:hidden}
+.pad{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 18px}.pad button{height:76px}
+.call{background:#34c759!important;color:#fff!important}
+.big{font-size:64px;font-weight:200;text-align:center;margin:40px 0;font-variant-numeric:tabular-nums}
+.btns{display:flex;justify-content:space-around}.btns button{width:84px;height:84px;border-radius:50%;border:0;font-size:17px;color:#fff;background:#34c759;cursor:pointer}
+.soon{text-align:center;margin-top:160px;opacity:.7;line-height:1.6}.soon div{font-size:80px}
+@media (max-width:500px){#phone{width:100vw;height:100dvh;border-radius:0;box-shadow:none;transform:none!important}}
+.ic span{white-space:nowrap}
+#grid{max-height:480px;overflow-y:auto;scrollbar-width:none}
+.go{border:0;border-radius:10px;background:#0a84ff;color:#fff;padding:9px 14px;cursor:pointer;font-size:15px;font-family:inherit}
+.seg{display:flex;background:var(--card);border-radius:12px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;border:0;border-radius:10px;padding:9px;background:none;color:inherit;font-size:15px;cursor:pointer;font-family:inherit}
+.seg .on{background:#0a84ff;color:#fff}
+.qk{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.qk button{background:var(--card);color:inherit;border:0;border-radius:14px;padding:18px 6px;font-size:14px;cursor:pointer;font-family:inherit}
+.si{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:24px;font-style:normal;flex:none}
+.b{background:var(--card);padding:10px 14px;border-radius:18px;margin:6px 0;max-width:78%;width:fit-content}
+.b.me{background:#0a84ff;color:#fff;margin-left:auto}
+.wc{border-radius:20px;color:#fff;padding:18px;height:150px;margin-bottom:12px;display:flex;flex-direction:column;justify-content:space-between}
+.wc b{font-size:30px}
+.ph{display:grid;grid-template-columns:repeat(3,1fr);gap:3px}
+.ph img,.ph div{width:100%;aspect-ratio:1;object-fit:cover}
+#callov{position:absolute;inset:0;z-index:95;display:none;flex-direction:column;align-items:center;justify-content:space-between;padding:150px 0 100px;background:rgba(8,10,28,.78);backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);color:#fff;text-align:center}
+#callov.on{display:flex}
+.av{width:104px;height:104px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;font-size:46px;background:linear-gradient(135deg,#6a85b6,#9fb4d6)}
+.cn{font-size:32px;font-weight:600}.cs{font-size:18px;opacity:.8;margin-top:6px;font-variant-numeric:tabular-nums}
+.cbs{display:flex;gap:70px;min-height:76px}.cbtn{width:76px;height:76px;border-radius:50%;border:0;color:#fff;font-size:30px;cursor:pointer}
+#toast{position:absolute;top:56px;left:14px;right:14px;z-index:80;border-radius:24px;padding:12px 16px;font-size:14px;transform:translateY(-140px);transition:transform .5s}
+#toast.in{transform:none}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="phone" data-theme="dark">
+  <div id="sb"><span id="t1">9:41</span><span id="sg">LedingOS · eSIM ▮▮▮ 🔋</span></div>
+
+  <div id="home" class="screen">
+    <div class="wid glass"><div><p>Лединград</p><h2>18°</h2><p>Облачно с прояснениями</p></div><div style="text-align:right;font-size:44px">⛅<p style="font-size:13px">Ощущается как 16°</p></div></div>
+    <div class="grid" id="grid"></div>
+    <div id="dock" class="glass"></div>
+  </div>
+
+  <div id="lock" class="screen">
+    <div id="ld"></div><div id="lt"></div>
+    <div id="note" class="glass"><b>💬 Сообщения · Анна</b><span>Ты уже попробовал LedingOS 26? Стекло просто огонь ✨</span></div>
+    <div id="hint">Проведите вверх или коснитесь, чтобы открыть</div>
+  </div>
+
+  <div id="cc" class="screen">
+    <div class="ccg">
+      <button class="tile glass on" data-k="wifi"><b>📶</b>Wi-Fi</button>
+      <button class="tile glass on" data-k="bt"><b>🔵</b>Bluetooth</button>
+      <button class="tile glass" data-k="air"><b>✈️</b>Авиарежим</button>
+      <button class="tile glass" data-k="dark"><b>🌙</b>Тёмный вид</button>
+      <div class="sl glass">☀️ Яркость<input type="range" id="br" min="40" max="100" value="100"></div>
+      <div class="sl glass">🔊 Звук<input type="range" min="0" max="100" value="60"></div>
+    </div>
+  </div>
+  <div id="callov"></div><div id="toast" class="glass"></div>
+  <div id="bar"></div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s),P=$('#phone');
+const S={dark:true,wp:0,wifi:true,bt:true,air:false,notes:'',inst:[],bal:25430,tx:[],esim:true,sim:''};
+try{Object.assign(S,JSON.parse(localStorage.getItem('ledingos')||'{}'))}catch(e){}
+const save=()=>{try{localStorage.setItem('ledingos',JSON.stringify(S))}catch(e){}};
+const WP=['linear-gradient(160deg,#3b6cff,#b04dff 55%,#ff7a9c)','linear-gradient(160deg,#0f9b8e,#2bc0e4 55%,#eaecc6)','linear-gradient(160deg,#ff512f,#f09819 55%,#ffe29f)'];
+function apply(){updSb();
+  P.dataset.theme=S.dark?'dark':'light';P.style.setProperty('--wp',WP[S.wp]);
+  document.querySelectorAll('.tile').forEach(b=>b.classList.toggle('on',!!S[b.dataset.k]));
+  if(openApp){$('#sb').classList.add('dk');$('#bar').classList.add('dk')}else{$('#sb').classList.remove('dk');$('#bar').classList.remove('dk')}
+}
+function tick(){
+  const d=new Date(),h=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  $('#t1').textContent=h;$('#lt').textContent=h;
+  $('#ld').textContent=d.toLocaleDateString('ru-RU',{weekday:'long',day:'numeric',month:'long'});
+}
+setInterval(tick,1000);tick();
+
+/* Apps */
+const APPS=[
+ {id:'phone',n:'Телефон',i:'📞',c:'#34c759'},{id:'msg',n:'Сообщения',i:'💬',c:'#30d158'},
+ {id:'web',n:'BrowserLedings',i:'🌐',c:'#0a84ff'},{id:'cam',n:'Камера',i:'📷',c:'#636366'},
+ {id:'photo',n:'Фото',i:'🌸',c:'#ff9f0a'},{id:'maps',n:'Карты',i:'🗺️',c:'#5ac8fa'},
+ {id:'clock',n:'Часы',i:'⏱️',c:'#1c1c1e'},{id:'calc',n:'Калькулятор',i:'🧮',c:'#ff9f0a'},
+ {id:'notes',n:'Заметки',i:'📝',c:'#ffd60a'},{id:'set',n:'Настройки',i:'⚙️',c:'#8e8e93'},
+ {id:'music',n:'Музыка',i:'🎵',c:'#ff375f'},{id:'wallet',n:'Кошелёк',i:'💳',c:'#32ade6'},{id:'store',n:'LedingApp',i:'📲',c:'#0a84ff'},{id:'esim',n:'EsimLeding',i:'📶',c:'#1c9d6b'}
+];
+const DOCK=['phone','web','msg','music'];
+const mk=a=>`<button class="ic" data-id="${a.id}"><i style="background:${a.c}">${a.i}</i><span>${a.n}</span></button>`;
+const CAT=[
+{id:'vk',n:'VK',i:'💙',c:'#0077ff',u:'https://vk.com',d:'Социальная сеть'},
+{id:'tg',n:'Telegram',i:'✈️',c:'#2aabee',u:'https://web.telegram.org',d:'Мессенджер'},
+{id:'max',n:'MAX',i:'🟣',c:'#7b3fe4',u:'https://max.ru',d:'Мессенджер'},
+{id:'gu',n:'Госуслуги',i:'🏛️',c:'#0d4cd3',u:'https://www.gosuslugi.ru',d:'Государственные услуги'},
+{id:'sber',n:'СберБанк',i:'🟢',c:'#21a038',u:'https://www.sberbank.ru',d:'Банк'},
+{id:'ym',n:'Яндекс Музыка',i:'🎧',c:'#e6b800',u:'https://music.yandex.ru',d:'Музыка и подкасты'},
+{id:'ymap',n:'Яндекс Карты',i:'📍',c:'#fc3f1d',u:'https://yandex.ru/maps',d:'Карты и навигация'},
+{id:'go',n:'Яндекс Go',i:'🚕',c:'#2b2b2b',u:'https://go.yandex',d:'Такси и доставка'},
+{id:'dz',n:'Дзен',i:'🌀',c:'#222',u:'https://dzen.ru',d:'Лента и статьи'},
+{id:'avito',n:'Авито',i:'🏷️',c:'#00a6f0',u:'https://www.avito.ru',d:'Объявления'},
+{id:'ozon',n:'Ozon',i:'🛒',c:'#005bff',u:'https://www.ozon.ru',d:'Маркетплейс'},
+{id:'wb',n:'Wildberries',i:'🛍️',c:'#cb11ab',u:'https://www.wildberries.ru',d:'Маркетплейс'},
+{id:'2gis',n:'2ГИС',i:'🧭',c:'#1ba83a',u:'https://2gis.ru',d:'Карты и справочник'},
+{id:'kp',n:'Кинопоиск',i:'🎬',c:'#ff5500',u:'https://www.kinopoisk.ru',d:'Фильмы и сериалы'}];
+const A=()=>APPS.concat(S.inst.map(id=>{const c=CAT.find(x=>x.id===id);return{id:'x_'+id,n:c.n,i:c.i,c:c.c,url:c.u}}));
+function renderGrid(){$('#grid').innerHTML=A().filter(a=>!DOCK.includes(a.id)).map(mk).join('')}
+renderGrid();
+$('#dock').innerHTML=DOCK.map(id=>mk(APPS.find(a=>a.id===id))).join('');
+
+let openApp=null,sw={t:0,run:0,id:0};
+const view={
+ calc(el){
+  let a=0,op=null,cur='0',fresh=true;
+  const keys=['AC','±','%','÷','7','8','9','×','4','5','6','−','1','2','3','+','0','.','='];
+  const f=x=>String(+(+x).toFixed(8));
+  el.innerHTML=`<div class="disp" id="cd">0</div><div class="calc">${keys.map(k=>`<button class="${'÷×−+='.includes(k)?'o':'AC±%'.includes(k)&&k.length<3&&'±%'.includes(k)||k==='AC'?'f':''} ${k==='0'?'z':''}">${k}</button>`).join('')}</div>`;
+  const calc=()=>{const b=+cur;a=op==='+'?a+b:op==='−'?a-b:op==='×'?a*b:op==='÷'?(b?a/b:NaN):b;cur=f(a)};
+  el.querySelectorAll('.calc button').forEach(b=>b.onclick=()=>{
+   const k=b.textContent;
+   if(k==='AC'){a=0;op=null;cur='0';fresh=true}
+   else if(k==='±')cur=f(-cur);else if(k==='%')cur=f(cur/100);
+   else if('÷×−+'.includes(k)){if(op&&!fresh)calc();else a=+cur;op=k;fresh=true}
+   else if(k==='='){if(op){calc();op=null;fresh=true}}
+   else{if(fresh||cur==='0'){cur=k==='.'?'0.':k;fresh=false}else if(!(k==='.'&&cur.includes('.')))cur+=k}
+   $('#cd').textContent=cur;$('#cd').style.fontSize=cur.length>8?'44px':'70px';
+  });
+ },
+ notes(el){
+  el.innerHTML=`<h1>Заметки</h1><textarea id="ta" placeholder="Начните писать…"></textarea>`;
+  const ta=$('#ta');ta.value=S.notes;ta.oninput=()=>{S.notes=ta.value;save()};
+ },
+ set(el){
+  const row=(k,t)=>`<div class="row">${t}<div class="sw ${S[k]?'on':''}" data-k="${k}"></div></div>`;
+  el.innerHTML=`<h1>Настройки</h1>${row('wifi','Wi-Fi')}${row('bt','Bluetooth')}${row('air','Авиарежим')}${row('dark','Тёмное оформление')}
+  <div class="row" style="display:block">Обои<div class="wps" style="margin-top:12px">${WP.map((w,i)=>`<div data-w="${i}" class="${S.wp===i?'sel':''}" style="background:${w}"></div>`).join('')}</div></div>
+  <div class="row"><span>Версия</span><span style="opacity:.6">LedingOS 26.0</span></div>
+  <div class="row"><span>Стиль интерфейса</span><span style="opacity:.6">Liquid Glass</span></div>`;
+  el.querySelectorAll('.sw').forEach(s=>s.onclick=()=>{S[s.dataset.k]=!S[s.dataset.k];s.classList.toggle('on');save();apply()});
+  el.querySelectorAll('[data-w]').forEach(w=>w.onclick=()=>{S.wp=+w.dataset.w;el.querySelectorAll('[data-w]').forEach(x=>x.classList.remove('sel'));w.classList.add('sel');save();apply()});
+ },
+ clock(el){
+  el.innerHTML=`<h1>Секундомер</h1><div class="big" id="sw">00:00.0</div><div class="btns"><button id="go">Старт</button><button id="rs" style="background:#8e8e93">Сброс</button></div>`;
+  const show=()=>{const t=sw.t+(sw.run?Date.now()-sw.run:0),m=Math.floor(t/60000),s=((t%60000)/1000).toFixed(1);const e=$('#sw');if(e)e.textContent=String(m).padStart(2,'0')+':'+s.padStart(4,'0')};
+  $('#go').onclick=function(){if(sw.run){sw.t+=Date.now()-sw.run;sw.run=0;clearInterval(sw.id);this.textContent='Старт';this.style.background='#34c759'}else{sw.run=Date.now();sw.id=setInterval(show,100);this.textContent='Стоп';this.style.background='#ff453a'}show()};
+  $('#rs').onclick=()=>{clearInterval(sw.id);sw={t:0,run:0,id:0};$('#go').textContent='Старт';$('#go').style.background='#34c759';show()};
+ }
+};
+const go=u=>{try{window.open(u,'_blank','noopener')}catch(e){}};
+const PH=[];
+const MU={cur:-1,tm:0,n:0,ctx:null};
+const seg=el=>{let i=0;el.querySelectorAll('.seg button').forEach((b,k)=>b.onclick=()=>{i=k;el.querySelectorAll('.seg button').forEach(x=>x.classList.toggle('on',x===b))});return()=>i};
+const inp=(id,ph,btn)=>`<div class="row" style="padding:6px 6px 6px 16px"><input id="${id}" placeholder="${ph}" style="flex:1;border:0;background:none;color:inherit;font-size:16px;outline:none;min-width:0"><button class="go" id="${btn}">Найти</button></div>`;
+Object.assign(view,{
+ web(el){
+  const E=[['Яндекс','https://yandex.ru/search/?text='],['Google','https://www.google.com/search?q=']];
+  const Q=[['Яндекс','https://ya.ru'],['VK','https://vk.com'],['Госуслуги','https://www.gosuslugi.ru'],['Дзен','https://dzen.ru'],['Авито','https://www.avito.ru'],['YouTube','https://youtube.com']];
+  el.innerHTML=`<h1>BrowserLedings</h1><div class="seg"><button class="on">Яндекс</button><button>Google</button></div>${inp('q','Поиск или адрес сайта','gq')}<div class="qk">${Q.map(q=>`<button data-u="${q[1]}">${q[0]}</button>`).join('')}</div><p style="opacity:.55;font-size:13px;text-align:center;margin-top:18px">Результаты открываются в новом окне браузера.</p>`;
+  const eng=seg(el);
+  const run=()=>{const v=$('#q').value.trim();if(!v)return;go(/^[^\s]+\.[a-zа-я]{2,}(\/\S*)?$/i.test(v)?(/^https?:/.test(v)?v:'https://'+v):E[eng()][1]+encodeURIComponent(v))};
+  $('#gq').onclick=run;$('#q').onkeydown=e=>{if(e.key==='Enter')run()};
+  el.querySelectorAll('.qk button').forEach(b=>b.onclick=()=>go(b.dataset.u));
+ },
+ store(el){
+  el.innerHTML=`<h1>LedingApp</h1><div style="opacity:.6;margin:-8px 0 14px">Приложения из России</div><div id="sl"></div>`;
+  const draw=()=>{$('#sl').innerHTML=CAT.map(c=>`<div class="row"><div style="display:flex;gap:12px;align-items:center"><i class="si" style="background:${c.c}">${c.i}</i><div>${c.n}<div style="font-size:12px;opacity:.6">${c.d}</div></div></div><button class="go" data-i="${c.id}">${S.inst.includes(c.id)?'Открыть':'Скачать'}</button></div>`).join('')};
+  draw();
+  $('#sl').onclick=e=>{const b=e.target.closest('button');if(!b)return;const id=b.dataset.i;
+   if(S.inst.includes(id)){go(CAT.find(c=>c.id===id).u);return}
+   b.textContent='Загрузка…';b.disabled=true;setTimeout(()=>{S.inst.push(id);save();renderGrid();draw()},1200)};
+ },
+ webapp(el,a){
+  el.innerHTML=`<div class="soon" style="margin-top:100px"><div>${a.i}</div><b style="font-size:24px">${a.n}</b><p>Сервис откроется в новом окне.</p><button class="go" id="wo" style="font-size:17px;padding:12px 30px">Открыть</button><br><button class="go" id="rm" style="background:#ff453a;margin-top:12px">Удалить приложение</button></div>`;
+  $('#wo').onclick=()=>go(a.url);
+  $('#rm').onclick=()=>{S.inst=S.inst.filter(x=>'x_'+x!==a.id);save();renderGrid();home()};
+ },
+ msg(el){
+  const R=['Ого, круто!','Согласна 😄','Давай позже созвонимся','Ок, договорились','Расскажи подробнее','😂😂'];
+  const C={'Анна':['Ты уже попробовал LedingOS 26? Стекло просто огонь ✨'],'Мама':['Не забудь поужинать 🍲'],'Дима':['Го в субботу на футбол?']};
+  const list=()=>{el.innerHTML='<h1>Сообщения</h1>'+Object.keys(C).map(n=>`<div class="row" data-n="${n}"><div><b>${n}</b><div style="opacity:.6;font-size:14px">${C[n][C[n].length-1].replace(/^>/,'')}</div></div>›</div>`).join('');el.querySelectorAll('[data-n]').forEach(r=>r.onclick=()=>chat(r.dataset.n))};
+  const chat=n=>{
+   el.innerHTML=`<h1><span id="bk2" style="color:#0a84ff;cursor:pointer">‹</span> ${n}</h1><div id="ms"></div><div class="row" style="position:sticky;bottom:0;padding:6px 6px 6px 16px"><input id="mi" placeholder="Сообщение" style="flex:1;border:0;background:none;color:inherit;font-size:16px;outline:none;min-width:0"><button class="go" id="sd">↑</button></div>`;
+   const draw=()=>{$('#ms').innerHTML=C[n].map(m=>m[0]==='>'?`<div class="b me">${m.slice(1)}</div>`:`<div class="b">${m}</div>`).join('');el.scrollTop=el.scrollHeight};
+   draw();$('#bk2').onclick=list;
+   const send=()=>{const v=$('#mi').value.trim();if(!v)return;C[n].push('>'+v);$('#mi').value='';draw();setTimeout(()=>{C[n].push(R[Math.random()*R.length|0]);if($('#ms')&&el.isConnected)draw()},1000)};
+   $('#sd').onclick=send;$('#mi').onkeydown=e=>{if(e.key==='Enter')send()};
+  };
+  list();
+ },
+ cam(el){
+  el.style.background='#000';el.style.color='#fff';
+  el.innerHTML=`<video id="v" autoplay playsinline muted style="width:100%;height:580px;object-fit:cover;border-radius:24px;background:#222"></video><div class="btns" style="margin-top:16px"><button id="sh" style="background:#fff;width:76px;height:76px"></button></div><p id="cm" style="text-align:center;opacity:.7"></p>`;
+  if(navigator.mediaDevices&&navigator.mediaDevices.getUserMedia)navigator.mediaDevices.getUserMedia({video:true}).then(s=>{el._s=s;$('#v').srcObject=s}).catch(()=>{$('#cm').textContent='Нет доступа к камере. Разрешите её в браузере.'});
+  else $('#cm').textContent='Камера недоступна на этом устройстве.';
+  $('#sh').onclick=()=>{const v=$('#v');if(!v.videoWidth){$('#cm').textContent='Камера недоступна';return}const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);PH.unshift(c.toDataURL('image/jpeg',.7));$('#cm').textContent='Снимок сохранён в «Фото»'};
+ },
+ photo(el){
+  const G=WP.concat(['linear-gradient(135deg,#232526,#414345)','linear-gradient(135deg,#f857a6,#ff5858)','linear-gradient(135deg,#43cea2,#185a9d)']);
+  el.innerHTML='<h1>Фото</h1><div class="ph">'+PH.map(s=>`<img src="${s}">`).join('')+G.map(g=>`<div style="background:${g}"></div>`).join('')+'</div>';
+ },
+ maps(el){
+  el.innerHTML=`<h1>Карты</h1><div class="seg"><button class="on">Яндекс Карты</button><button>Google Maps</button></div>${inp('mq','Куда поедем?','mg')}<svg viewBox="0 0 354 330" style="width:100%;border-radius:20px;background:#dfe9d8"><path d="M0 220Q90 180 160 230T354 190" stroke="#fff" stroke-width="14" fill="none"/><path d="M60 0L110 330" stroke="#fff" stroke-width="10"/><path d="M0 90L354 120" stroke="#fff" stroke-width="10"/><path d="M0 280Q150 250 354 300V330H0Z" fill="#a9d4f5"/><circle cx="200" cy="150" r="10" fill="#0a84ff" stroke="#fff" stroke-width="4"/></svg>`;
+  const eng=seg(el);
+  const run=()=>{const v=encodeURIComponent($('#mq').value.trim());if(v)go(eng()?'https://www.google.com/maps/search/'+v:'https://yandex.ru/maps/?text='+v)};
+  $('#mg').onclick=run;$('#mq').onkeydown=e=>{if(e.key==='Enter')run()};
+ },
+ music(el){
+  const T=[['Утренний бриз',[262,330,392,330,294,349,440,349]],['Ночной Лединград',[220,262,330,262,196,247,294,247]],['Стеклянный день',[392,494,587,494,440,523,659,523]]];
+  el.innerHTML=`<h1>Музыка</h1><div class="big" id="np" style="font-size:26px;font-weight:600;margin:16px 0"></div><div class="btns" style="margin-bottom:20px"><button id="pp">▶</button></div><div id="tl"></div>`;
+  const draw=()=>{$('#np').textContent=MU.cur<0?'Выберите трек':T[MU.cur][0];$('#pp').textContent=MU.tm?'❚❚':'▶';$('#tl').innerHTML=T.map((t,i)=>`<div class="row" data-i="${i}"><span>${i===MU.cur&&MU.tm?'🔊 ':'🎵 '}${t[0]}</span></div>`).join('');el.querySelectorAll('[data-i]').forEach(r=>r.onclick=()=>play(+r.dataset.i))};
+  const stop=()=>{clearInterval(MU.tm);MU.tm=0};
+  const play=i=>{
+   const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;MU.ctx=MU.ctx||new AC();if(MU.ctx.state==='suspended')MU.ctx.resume();
+   stop();MU.cur=i;MU.n=0;
+   MU.tm=setInterval(()=>{const c=MU.ctx,o=c.createOscillator(),g=c.createGain();o.frequency.value=T[MU.cur][1][MU.n++%8];g.gain.setValueAtTime(.15,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.45);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.5)},420);
+   draw();
+  };
+  $('#pp').onclick=()=>{if(MU.tm){stop();draw()}else play(MU.cur<0?0:MU.cur)};
+  draw();
+ },
+ wallet(el){
+  const f=n=>n.toLocaleString('ru-RU')+' ₽';
+  el.innerHTML=`<h1>Кошелёк</h1><div class="wc" style="background:linear-gradient(135deg,#21a038,#0d6b2a)"><small>Мир ••4821</small><b id="bl"></b></div><div class="wc" style="background:linear-gradient(135deg,#0a84ff,#6a3de8)"><small>LedingPay ••1107</small><b>9 870 ₽</b></div><button class="go" id="py" style="width:100%;padding:14px;font-size:17px;margin:6px 0 14px">Оплатить кофе: 250 ₽</button><div id="tx"></div>`;
+  const draw=()=>{$('#bl').textContent=f(S.bal);$('#tx').innerHTML=S.tx.map(t=>`<div class="row"><span>${t}</span><span style="opacity:.6">−250 ₽</span></div>`).join('')};
+  $('#py').onclick=()=>{if(S.bal<250)return;S.bal-=250;S.tx.unshift('Кофе · '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}));save();draw()};
+  draw();
+ }
+});
+/* eSIM: номера и звонки внутри LedingOS */
+const OK=/^\d{3}-\d{2}-\d{2}$/,pad=n=>String(n).padStart(2,'0');
+const BOT={'482-17-30':['Анна',1],'305-60-12':['Мама',1],'719-44-85':['Дима',0]};
+// Адрес сервера. Пока пусто: страница открыта с того же сервера.
+// Для APK и открытия файла напрямую впиши домен: 'https://ledingos.ru'
+const SERVER=location.protocol==='file:'?'https://ledingos.example.com':'';
+function netChannel(){
+  const h={onmessage:null,_ls:[]};
+  let es=null;
+  h.postMessage=m=>{fetch(SERVER+'/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(Object.assign({},m,{from:NUM}))}).catch(()=>{})};
+  h.addEventListener=(t,f)=>{if(t==='message')h._ls.push(f)};
+  h.register=n=>new Promise(res=>{
+    if(es)es.close();
+    es=new EventSource(SERVER+'/events?n='+n+'&id='+WID);
+    let done=false;
+    const fin=v=>{if(!done){done=true;res(v)}};
+    es.onmessage=e=>{
+      const m=JSON.parse(e.data);
+      if(m.t==='hello')return fin(true);
+      if(m.t==='taken'){es.close();es=null;return fin(false)}
+      h._ls.forEach(f=>f({data:m}));
+      if(h.onmessage)h.onmessage({data:m});
+    };
+    es.onerror=()=>{if(!done){es.close();es=null;fin(true)}};
+    setTimeout(()=>fin(true),4000);
+  });
+  return h;
+}
+const CH=netChannel();
+let WID;try{WID=sessionStorage.getItem('wid')}catch(e){}if(!WID){WID=Math.random().toString(36).slice(2);try{sessionStorage.setItem('wid',WID)}catch(e){}}
+const CO=$('#callov');
+let NUM='',call=null,rt=0;
+const gen=()=>{let n;do{n=(100+Math.random()*900|0)+'-'+pad(Math.random()*100|0)+'-'+pad(Math.random()*100|0)}while(BOT[n]);return n};
+const ENDB='<button class="cbtn" id="cend" style="background:#ff453a"><span style="display:inline-block;transform:rotate(135deg)">📞</span></button>';
+const INB=ENDB+'<button class="cbtn" id="cacc" style="background:#34c759">📞</button>';
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('in');setTimeout(()=>e.classList.remove('in'),4500)}
+function updSb(){const e=$('#sg');if(e)e.textContent='LedingOS · '+(S.air||S.esim===false?'нет сети':'eSIM ▮▮▮')+' 🔋'}
+async function simInit(){
+  let n='';try{n=sessionStorage.getItem('esim')||''}catch(e){}
+  n=n||S.sim;const first=!n;
+  if(!OK.test(n||''))n=gen();
+  let clash=false;
+  for(let k=0;k<5;k++){
+    const ok=await CH.register(n);
+    if(ok)break;
+    clash=true;n=gen();
+  }
+  NUM=n;
+  try{sessionStorage.setItem('esim',NUM)}catch(e){}
+  S.sim=NUM;save();
+  if(first||clash)toast('eSIM активирована. Ваш номер: '+NUM);
+  updSb();
+}
+function tone(fs){try{const AC=window.AudioContext||window.webkitAudioContext;MU.ctx=MU.ctx||new AC();const c=MU.ctx;if(c.state==='suspended')c.resume();fs.forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+i*.25;o.frequency.value=f;g.gain.setValueAtTime(.12,t);g.gain.exponentialRampToValueAtTime(.001,t+.22);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.25)})}catch(e){}}
+function ring(on){clearInterval(rt);rt=0;if(!on)return;const t=()=>tone(call&&call.dir==='in'?[523,659]:[440]);t();rt=setInterval(t,1800)}
+function showCall(st,btns){const c=call;CO.classList.add('on');CO.innerHTML=`<div><div class="av">${c.name?c.name[0]:'☎'}</div><div class="cn">${c.name||c.num}</div><div class="cs">${c.name?c.num+' · ':''}<span id="cs">${st}</span></div></div><div class="cbs">${btns}</div>`;
+  const e=$('#cend'),a=$('#cacc');if(e)e.onclick=hang;if(a)a.onclick=accept}
+function connect(){
+  if(!call||call.st==='live')return;clearTimeout(call.tm);clearTimeout(call.tm2);
+  call.st='live';call.t0=Date.now();ring(false);showCall('00:00',ENDB);
+  call.iv=setInterval(()=>{const s=(Date.now()-call.t0)/1000|0,e=$('#cs');if(e)e.textContent=pad(s/60|0)+':'+pad(s%60)},500);
+}
+function end(msg){
+  const c=call;if(!c)return;clearTimeout(c.tm);clearTimeout(c.tm2);clearInterval(c.iv);ring(false);
+  showCall(msg,'');call=null;setTimeout(()=>{if(!call)CO.classList.remove('on')},1500);
+}
+function hang(){const c=call;if(!c)return;if(c.src==='win'&&CH)CH.postMessage({t:c.st==='ring'&&c.dir==='in'?'decline':'hang',cid:c.cid});end(c.st==='live'?'Вызов завершён':'Вызов отменён')}
+function accept(){if(!call||call.dir!=='in')return;if(call.src==='win'&&CH)CH.postMessage({t:'accept',cid:call.cid});connect()}
+function incoming(num,name,src,cid){
+  if(call)return;call={cid:cid||'bot'+Date.now(),dir:'in',num,name,st:'ring',src};showCall('Входящий вызов',INB);ring(true);
+  call.tm=setTimeout(()=>{if(call&&call.st==='ring'){if(src==='win'&&CH)CH.postMessage({t:'hang',cid:call.cid});end('Пропущенный вызов')}},25000);
+}
+function dial(num){
+  if(!OK.test(num))return 'Введите номер в формате 123-55-66';
+  if(num===NUM)return 'Нельзя позвонить на свой номер';
+  if(S.esim===false||S.air)return 'eSIM выключена или включён авиарежим';
+  if(call)return 'Линия занята';
+  const bot=BOT[num];
+  call={cid:WID+Date.now(),dir:'out',num,name:bot?bot[0]:'',st:'ring',src:bot?'bot':'win'};
+  showCall('Вызов…',ENDB);ring(true);
+  if(bot){call.tm=setTimeout(()=>{if(bot[1])connect();else end('Абонент не отвечает')},bot[1]?2500:7000);return ''}
+  if(!CH){end('Абонент недоступен');return ''}
+  CH.postMessage({t:'ring',from:NUM,to:num,cid:call.cid});
+  call.tm=setTimeout(()=>{if(call&&!call.seen)end('Номер не найден или вне сети')},1500);
+  call.tm2=setTimeout(()=>{if(call&&call.st==='ring'){CH.postMessage({t:'hang',cid:call.cid});end('Абонент не отвечает')}},25000);
+  return '';
+}
+if(CH)CH.onmessage=e=>{
+  const m=e.data;
+  if(m.t==='who'){if(m.id!==WID&&m.n===NUM)CH.postMessage({t:'taken',n:NUM,to:m.id});return}
+  if(m.t==='ring'){if(m.to!==NUM||S.esim===false||S.air)return;if(call){CH.postMessage({t:'busy',cid:m.cid});return}CH.postMessage({t:'ringing',cid:m.cid});incoming(m.from,'','win',m.cid);return}
+  if(!call||m.cid!==call.cid)return;
+  if(m.t==='ringing')call.seen=1;
+  else if(m.t==='accept')connect();
+  else if(m.t==='decline')end('Абонент отклонил вызов');
+  else if(m.t==='busy')end('Абонент занят');
+  else if(m.t==='hang')end('Вызов завершён');
+  else if(m.t==='nobody')end('Номер не найден или вне сети');
+};
+Object.assign(view,{
+ phone(el){
+  el.innerHTML=`<div class="disp" id="pn" style="font-size:44px;height:96px;justify-content:center;letter-spacing:1px"></div><div id="pm" style="text-align:center;height:22px;font-size:14px;opacity:.65;margin-bottom:10px">Ваш номер: ${NUM||'…'}</div><div class="pad">${'123456789'.split('').map(k=>`<button>${k}</button>`).join('')}<span></span><button>0</button><span></span><span></span><button class="call">📞</button><button id="bk">⌫</button></div>`;
+  let d='';const fmt=x=>x.length>5?x.slice(0,3)+'-'+x.slice(3,5)+'-'+x.slice(5):x.length>3?x.slice(0,3)+'-'+x.slice(3):x;
+  el.querySelectorAll('.pad button').forEach(b=>b.onclick=()=>{
+   if(b.id==='bk')d=d.slice(0,-1);
+   else if(b.classList.contains('call')){if(d.length<7){$('#pm').textContent='Введите 7 цифр, например 123-55-66';return}const er=dial(fmt(d));if(er){$('#pm').textContent=er;return}d=''}
+   else if(d.length<7)d+=b.textContent;
+   $('#pn').textContent=fmt(d);
+  });
+ },
+ esim(el){
+  const live=()=>S.esim!==false&&!S.air;
+  el.innerHTML=`<h1>EsimLeding</h1><div class="wc" style="background:linear-gradient(135deg,#1c9d6b,#0a5f8f);height:170px"><small>eSIM · LedingOS</small><b style="font-size:40px;letter-spacing:1px" id="en">${NUM}</b><small id="es"></small></div>
+  <div class="row">eSIM включена<div class="sw ${S.esim!==false?'on':''}" id="esw"></div></div>
+  <div class="row" style="display:block"><b>Как это работает</b><div style="opacity:.65;font-size:14px;margin-top:6px;line-height:1.45">Номер выдаётся автоматически при первом запуске. Звонить можно только на номера LedingOS.</div></div>
+  <div class="row" style="display:block"><b>Номера для проверки</b>${Object.keys(BOT).map(n=>`<div class="row" style="margin:8px 0 0;padding:10px 12px;background:var(--app)"><span>${BOT[n][0]} · ${n}</span><button class="go" data-c="${n}">Позвонить</button></div>`).join('')}</div>
+  <button class="go" id="ti" style="width:100%;padding:14px;font-size:16px;margin-bottom:10px">Тестовый входящий звонок</button>
+  <button class="go" id="nn" style="width:100%;padding:14px;font-size:16px;background:#ff453a">Получить новый номер</button>`;
+  const st=t=>{$('#es').textContent=t||(live()?'Активна · сеть LedingOS':'Выключена')};st();
+  $('#esw').onclick=function(){S.esim=S.esim===false;this.classList.toggle('on',S.esim);save();apply();st()};
+  el.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{const er=dial(b.dataset.c);if(er)st(er)});
+  $('#ti').onclick=()=>{if(!live()){st('eSIM выключена');return}setTimeout(()=>incoming('482-17-30','Анна','bot'),2000)};
+  $('#nn').onclick=function(){if(!this.dataset.s){this.dataset.s=1;this.textContent='Нажмите ещё раз для подтверждения';return}
+   NUM=gen();try{sessionStorage.setItem('esim',NUM)}catch(e){}S.sim=NUM;save();$('#en').textContent=NUM;this.dataset.s='';this.textContent='Получить новый номер'};
+ }
+});
+function launch(id){
+  if(openApp)return;const a=A().find(x=>x.id===id);
+  const el=document.createElement('div');el.className='app';
+  P.appendChild(el);openApp=el;
+  if(view[id])view[id](el);else if(a.url)view.webapp(el,a);else el.innerHTML=`<div class="soon"><div>${a.i}</div><b>${a.n}</b><br>Это приложение появится в следующем обновлении LedingOS.</div>`;
+  apply();requestAnimationFrame(()=>el.classList.add('show'));
+}
+function home(){
+  if(cc.classList.contains('on')){cc.classList.remove('on');return}
+  if(!openApp)return;const el=openApp;openApp=null;if(el._s)el._s.getTracks().forEach(t=>t.stop());el.classList.remove('show');setTimeout(()=>el.remove(),350);apply();
+}
+const cc=$('#cc');
+document.addEventListener('click',e=>{const b=e.target.closest('.ic');if(b&&!cc.classList.contains('on'))launch(b.dataset.id)});
+$('#bar').onclick=home;
+$('#sb').onclick=()=>cc.classList.toggle('on');
+cc.addEventListener('click',e=>{const t=e.target.closest('.tile');if(t){S[t.dataset.k]=!S[t.dataset.k];save();apply()}else if(e.target===cc)cc.classList.remove('on')});
+$('#br').oninput=e=>P.style.filter=`brightness(${e.target.value}%)`;
+
+/* Lock screen */
+const lock=$('#lock');let y0=0;
+lock.onpointerdown=e=>y0=e.clientY;
+lock.onpointerup=e=>{if(e.clientY-y0<-40||Math.abs(e.clientY-y0)<6)lock.classList.add('off')};
+setTimeout(()=>$('#note').classList.add('in'),1500);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')home()});
+function fit(){if(innerWidth<=500){P.style.transform='';return}P.style.transform='scale('+Math.min((innerHeight-20)/864,(innerWidth-20)/410,1.5)+')'}
+addEventListener('resize',fit);fit();
+apply();
+simInit();
+</script>
+</body>
+</html>
